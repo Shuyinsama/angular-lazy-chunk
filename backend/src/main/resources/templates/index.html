@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html class="no-js" th:lang="${appLanguageCode}" th:with="
+		angularAssetsFolder=${isDevelopment ? webpackDevServerBaseUrl: '/js/dist/' + appLanguageCode},
+		angularGenericAssetsFolder=${isDevelopment ? webpackDevServerBaseUrl : '/js/dist/en'}"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<meta content="Angular Chunk Loading." name="description" />
+		<meta content="angular, chunks, lazyload" name="keywords" />
+		<meta http-equiv="content-language" th:content="${appLanguageCode}" />
+		<meta content="width=device-width, initial-scale=1" name="viewport" />
+		<meta name="theme-color" content="#461d53">
+
+		<title>Angular LazyLoad Chunks</title>
+
+	</head>
+
+	<body>
+		<app-root>
+			<div class="body-content">
+				<div class="row">
+					<div class="col-12">
+						Loading ...
+					</div>
+				</div>
+			</div>
+		</app-root>
+
+		<!-- The generic bundles, are the same for all languages. -->
+		<script th:if="${isDevelopment}" th:src="${angularGenericAssetsFolder + '/runtime.js?v=@VERSION@'}"></script>
+
+		<script th:src="${angularGenericAssetsFolder + '/runtime.js?v=@VERSION@'}"
+		        type="module"></script>
+
+		<script th:src="${angularGenericAssetsFolder + '/polyfills.js?v=@VERSION@'}"
+		        type="module"></script>
+
+		<script th:if="${isDevelopment}" th:src="${angularGenericAssetsFolder + '/vendor.js?v=@VERSION@'}"></script>
+
+		<!-- Contains the application bundle, including the correct translations for the current language. -->
+		<script th:src="${angularAssetsFolder + '/main.js?v=@VERSION@'}"
+		        type="module"></script>
+	</body>
+</html>

@@ -1,0 +1,14 @@
+plugins {
+  id "com.github.node-gradle.node" version "5.0.0"
+}
+
+jar.enabled = false
+
+node {
+  version = '18.12.0'
+  download = true
+}
+
+task buildClientSideCode(type: NpmTask) {
+  args = ['run', 'build']
+}

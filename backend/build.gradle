@@ -1,0 +1,63 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.1'
+	id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'nl.patrick'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+// We need to replace the @VERSION@ tokens inside the index.html file with the current date/time during build
+// This way we ensure the shop will always load the latest version. This will replace those tokens and output
+// the changes file inside the build folder.
+processResources {
+	from("${project.projectDir}/src/main/resources/templates") {
+		include "index.html"
+		into "/templates"
+		filter(ReplaceTokens, tokens: [VERSION: getVersionTimestamp()])
+		duplicatesStrategy DuplicatesStrategy.WARN
+	}
+}
+
+task resolveFrontendCode(type: Copy) {
+	into project.buildDir
+
+	into("resources/main/static/js/dist") {
+		from "${project.rootDir}/frontend/dist"
+		include "**/*.js"
+		include "**/*.map"
+	}
+
+	it.dependsOn ':angular-frontend:buildClientSideCode'
+}
+
+// First we need to copy the necessary files before we compile the Java code and it's resources
+compileJava.dependsOn(resolveFrontendCode)
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// Gets the current date which are appended to the js/css files inside index.html
+static def getVersionTimestamp() {
+	return new Date().format('yyyyMMddHHmmss')
+}
